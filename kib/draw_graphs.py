@@ -35,8 +35,6 @@ def draw_score(df_data, name='chara'):
     """
     スコア分布を描画する
     """
-    df_data = df_data.sort_values(by=['score'], ascending=False).reset_index(drop=True)
-    
     score_t = df_data[df_data['y'] == 1]
     score_f = df_data[df_data['y'] == 0]
 
@@ -57,18 +55,9 @@ def draw_recall(df_data, name='chara'):
     """
     Recall Rateを描画する
     """
-    df_data['y_'] = df_data['y'] if name == 'chara' else df_data['y{0}'.format(name)]
-
-    if name == 'chara':
-        df_data = df_data.sort_values(by=['score'], ascending=False).reset_index(drop=True)
-    else:
-        df_data = df_data.sort_values(by=['score{0}'.format(name)], ascending=False).reset_index(drop=True)
-
-    count_t = (df_data['y_'] == 1).sum()
-
     df_data['x'] = df_data.index / (len(df_data) - 1)
 
-    # 本来のRecall Rateを求める
+    count_t = (df_data['y_'] == 1).sum()
     df_data['ideal'] = [i / count_t if i < count_t else 1 for i in range(len(df_data))]
     df_data['kibit'] = [(df_data.loc[:i, 'y_'] == 1).sum() / count_t for i in range(len(df_data))]
 
@@ -96,13 +85,6 @@ def draw_precision(df_data, name='chara'):
     """
     Precision Rateを描画する
     """
-    df_data['y_'] = df_data['y'] if name == 'chara' else df_data['y{0}'.format(name)]
-
-    if name == 'chara':
-        df_data = df_data.sort_values(by=['score'], ascending=False).reset_index(drop=True)
-    else:
-        df_data = df_data.sort_values(by=['score{0}'.format(name)], ascending=False).reset_index(drop=True)
-
     df_data['x'] = (df_data.index / (len(df_data) - 1))
 
     df_data['kibit'] = [(df_data.loc[:i, 'y_'] == 1).sum() / (i + 1) for i in range(len(df_data))]
@@ -139,6 +121,10 @@ if __name__ == '__main__':
             os.mkdir(outpath)
         os.chdir(outpath)
 
+        # スコアの降順に並び替え、教師データ列を指定する
+        df_data = df_data.sort_values(by=['score'], ascending=False).reset_index(drop=True)
+        df_data['y_'] = df_data['y']
+
         # スコア分布を描く
         draw_score(df_data)
 
@@ -153,7 +139,10 @@ if __name__ == '__main__':
 
         for i in range(1, 5):
 
+            # スコアの降順に並び替え、教師データ列を指定する
             df_data = df_data.rename(columns={'軸{0}_スコア'.format(str(i)): 'score{0}'.format(i)})
+            df_data = df_data.sort_values(by=['score{0}'.format(str(i))], ascending=False).reset_index(drop=True)
+            df_data['y_'] = df_data['y{0}'.format(str(i))]
 
             # Recall Rateを描く
             draw_recall(df_data, str(i))
