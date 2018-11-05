@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
         for i in range(1, 5):
 
-            # スコアの降順に並び替え、教師データ列を指定する
+            # スコアの降順に並び替え、教師データの列を指定する
             df_data = df_data.rename(columns={'軸{0}_スコア'.format(str(i)): 'score{0}'.format(i)})
             df_data = df_data.sort_values(by=['score{0}'.format(str(i))], ascending=False).reset_index(drop=True)
             df_data['y_'] = df_data['y{0}'.format(str(i))]
